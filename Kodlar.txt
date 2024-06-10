@@ -1,0 +1,150 @@
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+#include <Servo.h>
+
+
+LiquidCrystal_I2C lcdekranim(0x27,16,2);
+
+
+
+const int trigger_pin1 = 8;
+const int echo_pin1 = 9;
+const int trigger_pin2 = 10;
+const int echo_pin2 = 11;
+
+  int sure1;
+int mesafe1;
+int sure2;
+int mesafe2;
+
+int irsensor1=3;
+int irsensor2=4;
+
+Servo giris;
+Servo cikis;
+  
+
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(13,OUTPUT);
+  pinMode(12,OUTPUT);
+  pinMode(2,OUTPUT);
+  pinMode(5,OUTPUT);
+  
+  pinMode(trigger_pin1, OUTPUT);
+  pinMode(echo_pin1, INPUT);
+   pinMode(trigger_pin2, OUTPUT);
+  pinMode(echo_pin2, INPUT);
+
+  pinMode(irsensor1,INPUT);
+  pinMode(irsensor2,INPUT);
+
+  giris.attach(6);
+  cikis.attach(5);
+
+  //lcd ekran 
+  lcdekranim.init();//ekranı başlat
+  lcdekranim.backlight();//arka ışık ekleme
+  lcdekranim.setCursor(1,0);//yazının başlayacağı sütun ve sütun
+  lcdekranim.print("AKILLI OTOPARK");//asıl yazı çıkmadan önce çıkacak yazı
+  
+   lcdekranim.setCursor(2,1);//yazının başlayacağı sütun ve sütun
+  lcdekranim.print("HOS GELDINIZ");//asıl yazı çıkmadan önce çıkacak yazı
+  
+  delay(6000);//giriş ekranında bir saniye
+  lcdekranim.clear();//ekranı  temizle
+  
+
+  
+}
+
+void loop() {
+
+  //lcd ekran park alanı yazıları
+ lcdekranim.setCursor(0,0);//0 olan ilk satır
+ lcdekranim.print("A1");// türkçe karakter kullanmayın
+ lcdekranim.setCursor(9,0);//0 olan ilk satır
+ lcdekranim.print("A2");// türkçe karakter kullanmayın 
+  
+  
+  digitalWrite(trigger_pin1, HIGH);
+  delayMicroseconds(1000);
+  digitalWrite(trigger_pin1, LOW);
+  sure1 = pulseIn(echo_pin1, HIGH);
+  mesafe1 = (sure1/2) / 29.1;
+
+  digitalWrite(trigger_pin2, HIGH);
+  delayMicroseconds(1000);
+  digitalWrite(trigger_pin2, LOW);
+  sure2 = pulseIn(echo_pin2, HIGH);
+  mesafe2 = (sure2/2) / 29.1;
+
+
+
+
+ if(mesafe1<=10){
+ lcdekranim.setCursor(0,1);
+ lcdekranim.print("DOLU.");
+ }
+ else{
+   lcdekranim.setCursor(0,1);
+ lcdekranim.print("BOS.");}
+
+ if(mesafe2<=10){
+ lcdekranim.setCursor(9,1);
+ lcdekranim.print("DOLU.");
+ }
+ else{
+   lcdekranim.setCursor(9,1);
+ lcdekranim.print("BOS.");}
+
+int irdeger1=digitalRead(irsensor1);
+int irdeger2=digitalRead(irsensor2);
+
+if (irdeger1==0)
+   {
+     giris.write(0);
+    }
+    else {
+     giris.write(90);}
+     
+     
+     
+     
+     if(mesafe1<=10&&mesafe2<=10)
+{
+  digitalWrite(12,LOW);
+  digitalWrite(13,HIGH);
+ 
+  
+  
+  }
+  else{
+    digitalWrite(12,HIGH);
+  digitalWrite(13,LOW);
+if (irdeger2==0)
+  {
+     cikis.write(90);
+    }
+    else {
+     cikis.write(0);}
+  }
+int isik = analogRead(A0);
+if (isik > 250) { //Okunan ışık değeri 250'den büyük ise
+    digitalWrite(2, LOW);
+    digitalWrite(7, LOW);//LED yanmasın
+  }
+  if (isik < 200) { //Okunan ışık değeri 200'den küçük ise
+    digitalWrite(2, HIGH);
+    digitalWrite(7, HIGH);//LED yansın
+  }
+  
+
+
+
+     
+  
+ 
+
+ }                    
